@@ -1,5 +1,5 @@
 {
-    "name": "Laravel 5 Layer",
+    "name": "Laravel5Layer",
     "type": "package",
     "description": "Package Support For Structure Laravel",
     "keywords": ["laravel", "structure"],
