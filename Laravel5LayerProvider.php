@@ -26,6 +26,26 @@ class Laravel5LayerProvider extends ServiceProvider
                 CreateFile\CreateRequestCommand::class,
                 CreateFile\CreateResponseCommand::class,
                 CreateFile\CreateWebControllerCommand::class,
+                BaseFile\CreateFileBaseCommand::class,
+                BaseFile\Command\CreateABusinessCommand::class,
+                BaseFile\Command\CreateAExceptionCommand::class,
+                BaseFile\Command\CreateAFormRequestCommand::class,
+                BaseFile\Command\CreateASQLCommand::class,
+                BaseFile\Command\CreateDatabaseBuilderCommand::class,
+                BaseFile\Command\CreateDatabaseCacheCommand::class,
+                BaseFile\Command\CreateExceptionServerCommand::class,
+                BaseFile\Command\CreateExceptionValidateCommand::class,
+                BaseFile\Command\CreateHelperJWTCommand::class,
+                BaseFile\Command\CreateHelperPriceCommand::class,
+                BaseFile\Command\CreateHelperQueryCommand::class,
+                BaseFile\Command\CreateHelperRedisCommand::class,
+                BaseFile\Command\CreateHelperRSACommand::class,
+                BaseFile\Command\CreateIBusinessCommand::class,
+                BaseFile\Command\CreateIDependencyCommand::class,
+                BaseFile\Command\CreateProviderCommand::class,
+                BaseFile\Command\CreateRedisCacheCommand::class,
+                BaseFile\Command\CreateRedisSessionCommand::class,
+                BaseFile\Command\CreateTraitJsonCommand::class
             ]);
         }
     }

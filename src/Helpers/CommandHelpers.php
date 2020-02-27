@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: LINH
- * Date: 2/24/2020
- * Time: 5:29 PM
- */
 
 namespace Linhnh95\Laravel5Layer\Helpers;
 

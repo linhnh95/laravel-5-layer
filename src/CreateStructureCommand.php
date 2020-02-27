@@ -75,8 +75,10 @@ class CreateStructureCommand extends Command
             $basePath = __DIR__ . '/BaseFile';
             $this->commandHelper->copyFileFromFileBaseRecursive($this->getFileForStructure(), $appDirectory, $basePath);
 
-            //$this->changeAppConfig();
+            $this->changeAppConfig();
             $this->changeCacheConfig();
+
+            $this->callSilent('linh-5layer:base-create', []);
 
             $this->info('Success initialization.');
         }

@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Common\Helpers;
+
+use Illuminate\Support\Facades\Redis;
+use Predis\PredisException;
+
+class RedisHelper
+{
+    /**
+     * @return bool
+     */
+    public static function healthCheck()
+    {
+        try {
+            $ping = Redis::ping();
+            if ($ping) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+}

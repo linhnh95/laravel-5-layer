@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Common\Helpers;
+
+
+class PriceHelpers
+{
+    /**
+     * @param $price
+     * @param int $default
+     *
+     * @return int|string|string[]|null
+     */
+    public static function formatPriceNumber($price, $default = 0)
+    {
+        if (!$price || $price == '' || empty($price)) {
+            return $default;
+        }
+        $priceFormat = preg_replace('/(\d)(?=(\d{3})+(?:\.\d+)?$)/', '$1.', $price);
+        return $priceFormat;
+    }
+
+    /**
+     * @param $price
+     *
+     * @return int
+     */
+    public static function clearSpecialNumber($price)
+    {
+        if ($price !== "") {
+            $pattern = '/[^0-9]/';
+            $price = preg_replace($pattern, '', $price);
+            return (int)$price;
+        }
+        return 0;
+    }
+}

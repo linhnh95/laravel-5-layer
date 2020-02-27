@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: LINH
- * Date: 2/27/2020
- * Time: 5:49 PM
- */
 
 namespace Linhnh95\Laravel5Layer\CreateFile;
 
