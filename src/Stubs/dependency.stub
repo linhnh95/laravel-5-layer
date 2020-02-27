@@ -1,0 +1,36 @@
+<?php
+
+namespace DummyNamespace;
+
+use App\Abstraction\Dependency\IDummyClassDependency;
+use App\Models\DummyClass;
+
+final class SQLDummyClass extends ASQLQuery implements IDummyClassDependency
+{
+    /**
+     * Dependency constructor.
+     *
+     * @param DummyClass $item
+     */
+    public function __construct(DummyClass $item)
+    {
+        parent::__construct($item);
+        $this->queryWith([]);
+        $this->paramsToRelation([
+
+        ]);
+        $this->paramsToTable([
+
+        ]);
+        $this->paramsToField([
+
+        ]);
+        $this->paramsToCondition([
+
+        ]);
+        $this->whereGroups([
+
+        ]);
+        $this->whereGroupConditions([]);
+    }
+}

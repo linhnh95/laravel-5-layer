@@ -1,0 +1,19 @@
+<?php
+
+namespace DummyNamespace;
+
+use App\Abstraction\Business\IDummyClassBusiness;
+use App\Abstraction\Dependency\IDummyClassDependency;
+
+class DummyClassBusiness extends ABusiness implements IDummyClassBusiness
+{
+    /**
+     * BDummyClass constructor.
+     *
+     * @param IDummyClassDependency $item
+     */
+    public function __construct(IDummyClassDependency $item)
+    {
+        parent::__construct($item);
+    }
+}

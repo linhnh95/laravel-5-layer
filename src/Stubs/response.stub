@@ -1,0 +1,14 @@
+<?php
+
+namespace DummyNamespace;
+
+class DummyClass
+{
+    {{properties}}
+	public function __construct(array $params)
+	{
+		{{init}}
+	}
+
+    {{methods}}
+}
