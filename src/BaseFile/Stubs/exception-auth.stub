@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Exceptions;
+
+class AuthException extends AException
+{
+    public function __construct()
+    {
+        $message =  'Cần đăng nhập để có thể thực hiện chức năng';
+        $errors   = 'Cần đăng nhập để có thể thực hiện chức năng';
+        parent::__construct($message, 401, $errors);
+    }
+}

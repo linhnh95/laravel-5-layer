@@ -54,6 +54,7 @@ class CreateFileBaseCommand extends Command
         $this->callSilent('linh-5layer:base-sql', ['name' => 'ASQLQuery']);
         $this->callSilent('linh-5layer:base-db-builder', ['name' => 'Builder']);
         $this->callSilent('linh-5layer:base-db-cache', ['name' => 'CacheQueryBuilder']);
+        $this->callSilent('linh-5layer:base-ex-auth', ['name' => 'AuthException']);
         $this->callSilent('linh-5layer:base-ex-server', ['name' => 'ServerException']);
         $this->callSilent('linh-5layer:base-ex-validate', ['name' => 'ValidationException']);
         $this->callSilent('linh-5layer:base-help-jwt', ['name' => 'JWTHelpers']);

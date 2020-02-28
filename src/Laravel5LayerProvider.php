@@ -35,6 +35,7 @@ class Laravel5LayerProvider extends ServiceProvider
                 BaseFile\Command\CreateASQLCommand::class,
                 BaseFile\Command\CreateDatabaseBuilderCommand::class,
                 BaseFile\Command\CreateDatabaseCacheCommand::class,
+                BaseFile\Command\CreateExceptionAuthCommand::class,
                 BaseFile\Command\CreateExceptionServerCommand::class,
                 BaseFile\Command\CreateExceptionValidateCommand::class,
                 BaseFile\Command\CreateHelperJWTCommand::class,
