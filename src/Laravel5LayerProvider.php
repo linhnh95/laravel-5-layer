@@ -17,6 +17,8 @@ class Laravel5LayerProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                CreateFileCommand::class,
+                CreateStructureCommand::class,
                 CreateFile\CreateApiControllerCommand::class,
                 CreateFile\CreateBusinessCommand::class,
                 CreateFile\CreateDependencyCommand::class,
