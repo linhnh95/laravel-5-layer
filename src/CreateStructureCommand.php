@@ -71,10 +71,6 @@ class CreateStructureCommand extends Command
                 $this->commandHelper->renameNamespaceRecursive($bootstrapApp, $baseAppNamespace . str_replace('/', '\\', $source), $baseAppNamespace . str_replace('/', '\\', $destination));
             }
 
-            //Create Base File
-            $basePath = __DIR__ . '/BaseFile';
-            $this->commandHelper->copyFileFromFileBaseRecursive($this->getFileForStructure(), $appDirectory, $basePath);
-
             $this->changeAppConfig();
             $this->changeCacheConfig();
 
@@ -113,64 +109,6 @@ class CreateStructureCommand extends Command
                 'Requests' => []
             ],
             'Providers' => []
-        ];
-    }
-
-    /**
-     * List File Base Create When Init
-     *
-     * @return array
-     */
-    private function getFileForStructure()
-    {
-        $basePath = __DIR__ . '/BaseFile';
-        return [
-            'Abstraction' => [
-                'Business' => [
-                    'AInterfaceBusiness.php' => $basePath . '/Abstraction/Business/AInterfaceBusiness.php'
-                ],
-                'Dependency' => [
-                    'AInterface.php' => $basePath . '/Abstraction/Dependency/AInterface.php'
-                ]
-            ],
-            'Business' => [
-                'ABusiness.php' => $basePath . '/Business/ABusiness.php'
-            ],
-            'Common' => [
-                'Database' => [
-                    'Builder.php' => $basePath . '/Common/Database/Builder.php',
-                    'CacheQueryBuilder.php' => $basePath . '/Common/Database/CacheQueryBuilder.php'
-                ],
-                'Helpers' => [
-                    'JWTHelpers.php' => $basePath . '/Common/Helpers/JWTHelpers.php',
-                    'QueryHelpers.php' => $basePath . '/Common/Helpers/QueryHelpers.php',
-                    'RedisHelper.php' => $basePath . '/Common/Helpers/RedisHelper.php',
-                    'RSAHelpers.php' => $basePath . '/Common/Helpers/RSAHelpers.php'
-                ],
-                'Redis' => [
-                    'CacheRedisManager.php' => $basePath . '/Common/Redis/CacheRedisManager.php',
-                    'SessionRedisManager.php' => $basePath . '/Common/Redis/SessionRedisManager.php'
-                ],
-                'Traits' => [
-                    'JsonResponseTrait.php' => $basePath . '/Common/Traits/JsonResponseTrait.php'
-                ],
-            ],
-            'Dependency' => [
-                'ASQLQuery.php' => $basePath . '/Dependency/ASQLQuery.php'
-            ],
-            'Exceptions' => [
-                'AException.php' => $basePath . '/Exceptions/AException.php',
-                'ServerException.php' => $basePath . '/Exceptions/ServerException.php',
-                'ValidationException.php' => $basePath . '/Exceptions/ValidationException.php',
-            ],
-            'Http' => [
-                'Requests' => [
-                    'AFormRequest.php' => $basePath . '/Http/Requests/AFormRequest.php',
-                ]
-            ],
-            'Providers' => [
-                'RepositoryServiceProvider.php' => $basePath . '/Providers/RepositoryServiceProvider.php',
-            ]
         ];
     }
 
