@@ -45,6 +45,6 @@ class CreateExceptionServerCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace . 'Exceptions';
+        return $rootNamespace . DIRECTORY_SEPARATOR . 'Exceptions';
     }
 }
