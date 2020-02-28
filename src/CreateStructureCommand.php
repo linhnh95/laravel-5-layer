@@ -71,8 +71,6 @@ class CreateStructureCommand extends Command
                 $this->commandHelper->renameNamespaceRecursive($bootstrapApp, $baseAppNamespace . str_replace('/', '\\', $source), $baseAppNamespace . str_replace('/', '\\', $destination));
             }
 
-            ini_set('max_execution_time', 180000);
-            ini_set('memory_limit', '-1');
             $this->callSilent('linh-5layer:base-create', []);
 
             $this->info('Success initialization.');

@@ -4,7 +4,7 @@ namespace App\Business;
 
 
 use App\Abstraction\Business\AInterfaceBusiness;
-use App\Abstraction\SQL\AInterface;
+use App\Abstraction\Dependency\AInterface;
 
 abstract class ABusiness
 {

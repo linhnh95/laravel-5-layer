@@ -45,6 +45,9 @@ class CreateFileBaseCommand extends Command
      */
     public function handle()
     {
+        ini_set('max_execution_time', 180000);
+        ini_set('memory_limit', '-1');
+
         $this->callSilent('linh-5layer:base-business', ['name' => 'ABusiness']);
         $this->callSilent('linh-5layer:base-exception', ['name' => 'AException']);
         $this->callSilent('linh-5layer:base-formrequest', ['name' => 'AFormRequest']);
