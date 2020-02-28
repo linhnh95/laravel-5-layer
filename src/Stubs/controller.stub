@@ -2,6 +2,7 @@
 
 namespace DummyNamespace;
 
+use App\Abstraction\Business\IDummyClassBusiness;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -11,7 +12,7 @@ class DummyClassController extends Controller
     /**
       * var IDummyClassBusiness
       */
-     private ${{variable}}Business
+     private ${{variable}}Business;
 
    /**
     * DummyClassController constructor.

@@ -1,7 +1,7 @@
 {
     "name": "linhnh95/laravel5layer",
     "type": "package",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "Package Support For Structure Laravel",
     "keywords": ["laravel", "structure"],
     "license": "MIT",
