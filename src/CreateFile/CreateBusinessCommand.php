@@ -67,7 +67,11 @@ class CreateBusinessCommand extends GeneratorCommand
             return false;
         }
         $this->makeDirectory($path);
-        $this->files->put($path, $this->sortImports($this->buildClass($nameBase)));
+        if (method_exists($this, 'sortImports')) {
+            $this->files->put($path, $this->sortImports($this->buildClass($nameBase)));
+        } else {
+            $this->files->put($path, $this->buildClass($nameBase));
+        }
         $this->info($this->type . ' created successfully.');
     }
 }
