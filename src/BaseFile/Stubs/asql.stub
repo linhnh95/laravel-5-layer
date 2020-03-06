@@ -365,7 +365,7 @@ abstract class ASQLQuery
             $query = new QueryHelpers();
             $query->setQuery($this->model);
             $result = $query->buildWhere($where, $this->paramsToRelation, $this->paramsToTable, $this->paramsToField, $this->paramsToCondition);
-            $result->update($params);
+            $result->update($update);
             if ($getData) {
                 if (isset($where['id'])) {
                     if ($this->withs) {
