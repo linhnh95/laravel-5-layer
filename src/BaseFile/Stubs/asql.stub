@@ -298,15 +298,15 @@ abstract class ASQLQuery
             }
             $insert = [];
             $i = 0;
-            foreach ($insert as $data) {
+            foreach ($params as $data) {
                 array_push($create, $data);
-                if (count($create) == 1000 || count($create) == count($insert) || count($create) == (count($insert) - (1000 * $i))) {
+                if (count($create) == 1000 || count($create) == count($params) || count($create) == (count($params) - (1000 * $i))) {
                     $this->model->insert($create);
                     $create = [];
                     $i++;
                 }
             }
-            return $this->model->insert($insert);
+            return true;
         } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
