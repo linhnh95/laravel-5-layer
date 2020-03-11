@@ -17,50 +17,20 @@ abstract class ASQLQuery
      */
     public $model;
 
+    **
+     * @var
+     */
+    private $conditions;
+
     /**
      * @var
      */
     private $withs;
 
     /**
-     * @var
-     */
-    private $paramsToRelation;
-
-    /**
-     * @var
-     */
-    private $paramsToTable;
-
-    /**
-     * @var
-     */
-    private $paramsToField;
-
-    /**
-     * @var
-     */
-    private $paramsToCondition;
-
-    /**
-     * @var array
-     */
-    private $pivotRelations = [];
-
-    /**
      * @var array
      */
     private $scopes = [];
-
-    /**
-     * @var array
-     */
-    private $whereGroups = [];
-
-    /**
-     * @var array
-     */
-    private $whereGroupConditions = [];
 
     /**
      * @var string
@@ -369,10 +339,8 @@ abstract class ASQLQuery
             if (empty($update)) {
                 return false;
             }
-            $query = new QueryHelpers();
-            $query->setQuery($this->model);
-            $result = $query->buildWhere($where, $this->paramsToRelation, $this->paramsToTable, $this->paramsToField, $this->paramsToCondition);
-            $result->update($update);
+            $helper = new QueryHelper($this->model);
+            $result = $helper->createWhere($params, $this->conditions)->getQuery()->update($update);
             if ($getData) {
                 if (isset($where['id'])) {
                     if ($this->withs) {
@@ -403,14 +371,12 @@ abstract class ASQLQuery
             if (empty($raws)) {
                 return false;
             }
-            $query = new QueryHelpers();
-            $query->setQuery($this->model);
-            $result = $query->buildWhere($where, $this->paramsToRelation, $this->paramsToTable, $this->paramsToField, $this->paramsToCondition);
             $update = [];
             foreach ($raws as $key => $raw) {
                 $update[$key] = DB::raw($raw);
             }
-            $result->update($update);
+            $helper = new QueryHelper($this->model);
+            $result = $helper->createWhere($params, $this->conditions)->getQuery()->update($update);
             if ($getData) {
                 if (isset($where['id'])) {
                     if ($this->withs) {
@@ -451,10 +417,8 @@ abstract class ASQLQuery
     public function deleteBy(array $params = [])
     {
         try {
-            $query = new QueryHelpers();
-            $query->setQuery($this->model);
-            $result = $query->buildWhere($params, $this->paramsToRelation, $this->paramsToTable, $this->paramsToField, $this->paramsToCondition);
-            $result->delete();
+            $helper = new QueryHelper($this->model);
+            $result = $helper->createWhere($params, $this->conditions)->getQuery()->delete();
             return $result;
         } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
@@ -486,17 +450,15 @@ abstract class ASQLQuery
     public function forceDeleteBy(array $params = [])
     {
         try {
-            $query = new QueryHelpers();
-            $query->setQuery($this->model);
-            $result = $query->buildWhere($params, $this->paramsToRelation, $this->paramsToTable, $this->paramsToField, $this->paramsToCondition);
-            $ids = $result->withTrashed()->select(['id'])->get();
+            $helper = new QueryHelper($this->model);
+            $ids = $helper->createWhere($params, $this->conditions)->getQuery()->withTrashed()->select(['id'])->get();
             if (!empty($ids)) {
                 $ids = $ids->pluck('id')->toArray();
                 foreach ($ids as $id) {
                     $this->buildPivotRelations($id, [], true);
                 }
             }
-            $result->withTrashed()->delete();
+            $result = $helper->createWhere($params, $this->conditions)->getQuery()->withTrashed()->delete();
             return $result;
         } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
@@ -528,11 +490,9 @@ abstract class ASQLQuery
     public function restoreBy(array $params = [])
     {
         try {
-            $query = new QueryHelpers();
-            $query->setQuery($this->model);
-            $result = $query->buildWhere($params, $this->paramsToRelation, $this->paramsToTable, $this->paramsToField, $this->paramsToCondition);
-            $result->withTrashed()->restore();
-            return $result;
+            $helper = new QueryHelper($this->model);
+            $query = $helper->createWhere($params, $this->conditions)->getQuery()->withTrashed()->restore();
+            return $query;
         } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
@@ -559,6 +519,23 @@ abstract class ASQLQuery
             }
         }
         return $result;
+    }
+
+    /**
+     * @param string $table
+     * @param string $field
+     * @param string $relation
+     *
+     * @return array
+     */
+    public function parseQueryCondition(string $table = '', string $field = '', string $relation = '')
+    {
+        return [
+            'is_relation' => $relation !== '' ? true : false,
+            'relation' => $relation,
+            'table' => $table,
+            'field' => $field
+        ];
     }
 
     /**
@@ -599,35 +576,8 @@ abstract class ASQLQuery
      */
     private function query($params, $fields)
     {
-        $query = new QueryHelpers();
-        $query->setQuery($this->model);
-        $query->build($fields);
-        if ($this->withs) {
-            $query->with($this->withs);
-        }
-        $query->buildWhereGroup($params, $this->whereGroups, $this->whereGroupConditions);
-        $query->where($params, $this->paramsToRelation, $this->paramsToTable, $this->paramsToField, $this->paramsToCondition, $this->scopes);
-        $query = $query->getQuery();
-        $query = $this->buildOrderBy($query, $params);
-        $query->getQuery();
-        if ($this->withCount) {
-            $query->withCount($this->withCount);
-        }
-        return $query;
-    }
-
-    /**
-     * @param $query
-     * @param $params
-     *
-     * @return mixed
-     */
-    private function buildOrderBy($query, $params)
-    {
-        if (isset($params['order_by'])) {
-            $order = isset($params['order']) ? strtoupper($params['order']) : 'ASC';
-            $query->orderBy($params['order_by'], $order);
-        }
+        $helper = new QueryHelper($this->model);
+        $query = $helper->newQuery()->setSelect($fields)->setWith($this->withs)->setScopes($this->scopes)->createWhere($params, $this->conditions)->orderBy($params)->withCount($this->withCount)->getQuery();
         return $query;
     }
 
@@ -746,43 +696,11 @@ abstract class ASQLQuery
     }
 
     /**
-     * @param array $tables
-     */
-    protected function paramsToTable($tables = [])
-    {
-        $this->paramsToTable = $tables;
-    }
-
-    /**
-     * @param $relations
-     */
-    protected function paramsToRelation($relations = [])
-    {
-        $this->paramsToRelation = $relations;
-    }
-
-    /**
-     * @param array $fields
-     */
-    protected function paramsToField($fields = [])
-    {
-        $this->paramsToField = $fields;
-    }
-
-    /**
      * @param array $conditions
      */
-    protected function paramsToCondition($conditions = [])
+    protected function conditions(array $conditions = [])
     {
-        $this->paramsToCondition = $conditions;
-    }
-
-    /**
-     * @param array $relations
-     */
-    protected function pivotRelations($relations = [])
-    {
-        $this->pivotRelations = $relations;
+        $this->conditions = $conditions;
     }
 
     /**
@@ -791,22 +709,6 @@ abstract class ASQLQuery
     protected function scopes($scopes = [])
     {
         $this->scopes = $scopes;
-    }
-
-    /**
-     * @param array $groups
-     */
-    protected function whereGroups($groups = [])
-    {
-        $this->whereGroups = $groups;
-    }
-
-    /**
-     * @param array $conditions
-     */
-    protected function whereGroupConditions($conditions = [])
-    {
-        $this->whereGroupConditions = $conditions;
     }
 
     /**

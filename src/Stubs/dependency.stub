@@ -16,21 +16,8 @@ final class SQLDummyClass extends ASQLQuery implements IDummyClassDependency
     {
         parent::__construct($item);
         $this->queryWith([]);
-        $this->paramsToRelation([
-
+        $this->conditions([
+            'id' => $this->parseQueryCondition(USER_TABLE, 'id'),
         ]);
-        $this->paramsToTable([
-
-        ]);
-        $this->paramsToField([
-
-        ]);
-        $this->paramsToCondition([
-
-        ]);
-        $this->whereGroups([
-
-        ]);
-        $this->whereGroupConditions([]);
     }
 }

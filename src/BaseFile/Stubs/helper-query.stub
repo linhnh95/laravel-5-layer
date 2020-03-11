@@ -8,336 +8,283 @@ use Illuminate\Database\Eloquent\Model;
 class QueryHelpers
 {
     /**
-     * @var
+     * @var Model
      */
-    private static $model;
+    protected $model;
 
     /**
-     * @var
+     * @var Builder
      */
-    private static $table;
+    protected $query;
 
     /**
-     * @var null
-     */
-
-    /**
-     * @var null
-     */
-    public static $query = null;
-
-    /**
+     * QueryHelperV2 constructor.
+     *
      * @param Model $model
      */
-    public function setQuery(Model $model)
+    public function __construct(Model $model)
     {
-        self::$table = $model->getTable();
-        self::$model = $model->newModelQuery();
+        $this->model = $model;
     }
 
     /**
-     * @return null
+     * @return Model
      */
-    public function getQuery()
+    public function getModel(): Model
     {
-        return self::$query;
+        return $this->model;
+    }
+
+    /**
+     * @return Builder
+     */
+    public function createQueryBuilder(): Builder
+    {
+        return $this->model->newQuery();
+    }
+
+    /**
+     * @return $this
+     */
+    public function newQuery()
+    {
+        $this->query = $this->createQueryBuilder();
+        return $this;
+    }
+
+    /**
+     * @return Builder
+     */
+    public function getQuery(): Builder
+    {
+        return $this->query;
+    }
+
+    /**
+     * @param Builder $builder
+     *
+     * @return $this
+     */
+    public function setQuery(Builder $builder)
+    {
+        $this->query = $builder;
+        return $this;
     }
 
     /**
      * @param array $fields
-     *
-     * @return bool
+     * @return $this
      */
-    public function build(array $fields = ['*'])
+    public function setSelect(array $fields = ['*'])
     {
-        if (!self::$model) {
-            return false;
+        if (empty($fields)) {
+            $fields = ['*'];
         }
-        self::$query = self::$model->select($fields);
+        $this->getQuery()->select($fields);
+        return $this;
     }
-
 
     /**
      * @param array $withs
-     *
-     * @return bool
+     * @return $this
      */
-    public function with(array $withs = [])
+    public function setWith(array $withs = [])
     {
-        if (empty($withs)) {
-            return false;
-        }
-        if (!self::$query) {
-            return false;
-        }
-        foreach ($withs as $with) {
-            self::$query->with($with);
-        }
+        $this->getQuery()->with($withs);
+        return $this;
     }
 
     /**
-     * @param $params
-     * @param null $paramsToRelation
-     * @param null $paramsToTable
-     * @param null $paramsToField
-     * @param null $paramsToCondition
-     *
-     * @return bool|null
+     * @param array $scopes
+     * @return $this
      */
-    public function buildWhere($params, $paramsToRelation = null, $paramsToTable = null, $paramsToField = null, $paramsToCondition = null)
+    public function setScopes(array $scopes = [])
     {
-        if (!self::$model) {
-            return false;
-        }
-        self::$query = self::$model;
-        $this->where($params, $paramsToRelation, $paramsToTable, $paramsToField, $paramsToCondition);
-        return self::$query;
+        $this->getQuery()->scopes($scopes);
+        return $this;
     }
 
     /**
-     * @param $params
-     * @param array $groups
+     * @param array $params
      * @param array $conditions
      *
-     * @return bool
+     * @return $this|Builder
      */
-    public function buildWhereGroup($params, array $groups = [], $conditions = [])
+    public function createWhere(array $params, array $conditions)
     {
-        if (empty($groups)) {
-            return false;
+        // Can't Create Where SQL If Not Isset $params
+        if (empty($params)) {
+            return $this->getQuery();
         }
-        foreach ($groups as $key => $group) {
-            if (!isset($params[$key])) {
-                continue;
-            }
-            self::$query->where(function ($q) use ($params, $group, $key, $conditions) {
-                foreach ($group as $item) {
-                    $valSearch = isset($item['value']) ? ($item['value'] === 'null' ? null : $item['value']) : $params[$key];
-                    if ($item['is_relation']) {
-                        $q->whereHas($item['relation'], function ($q) use ($item, $key, $valSearch, $conditions) {
-                            return $this->whereRelationsGroup($q, $item, $key, $valSearch, $conditions);
-                        });
-                    } else {
-                        $this->whereRelationsGroup($q, $item, $key, $valSearch, $conditions);
-                    }
-                }
-            });
-        }
-        return true;
-    }
 
-    /**
-     * @param $q
-     * @param $item
-     * @param $key
-     * @param $valSearch
-     * @param $conditions
-     *
-     * @return mixed
-     */
-    private function whereRelationsGroup($q, $item, $key, $valSearch, $conditions)
-    {
-        if ($item['condition'] == 'like') {
-            $valSearch = "%" . $valSearch . "%";
+        // Can't Create Where SQL If Not Isset $conditions
+        if (empty($conditions)) {
+            return $this->getQuery();
         }
-        if (isset($conditions[$key])) {
-            if ($conditions[$key] == 'OR') {
-                if (isset($item['is_group'])) {
-                    $q->orWhere(function ($q) use ($valSearch, $item) {
-                        return $this->whereRelationsValueGroup($q, $valSearch, $item);
-                    });
-                } else {
-                    $q->orWhere($item['table'] . '.' . $item['key'], $item['condition'], $valSearch);
-                }
-            }else{
-                if (isset($item['is_group'])) {
-                    $q->where(function ($q) use ($valSearch, $item) {
-                        return $this->whereRelationsValueGroup($q, $valSearch, $item);
-                    });
-                } else {
-                    $q->where($item['table'] . '.' . $item['key'], $item['condition'], $valSearch);
-                }
-            }
-        }else{
-            if (isset($item['is_group'])) {
-                $q->where(function ($q) use ($valSearch, $item) {
-                    return $this->whereRelationsValueGroup($q, $valSearch, $item);
-                });
-            } else {
-                $q->where($item['table'] . '.' . $item['key'], $item['condition'], $valSearch);
-            }
-        }
-        return $q;
-    }
 
-    /**
-     * @param $q
-     * @param $valSearch
-     * @param $item
-     *
-     * @return mixed
-     */
-    private static function whereRelationsValueGroup($q, $valSearch, $item)
-    {
-        if (!is_array($valSearch)) {
-            return false;
-        }
-        if (!isset($valSearch['items']) || !is_array($valSearch['items'])) {
-            return false;
-        }
-        foreach ($valSearch['items'] as $vItem) {
-            $value = isset($vItem['value']) ? ($vItem['value'] === 'null' ? null : $vItem['value']) : '';
-            if ($valSearch['condition'] == 'OR') {
-                $q->orWhere($item['table'] . '.' . $item['key'], $vItem['condition'], $value);
-            } else {
-                $q->where($item['table'] . '.' . $item['key'], $vItem['condition'], $value);
-            }
-        }
-        return $q;
-    }
-
-    /**
-     * @param $params
-     * @param null $paramsToRelation
-     * @param null $paramsToTable
-     * @param null $paramsToField
-     * @param null $paramsToCondition
-     * @param array $scopes
-     */
-    public function where($params, $paramsToRelation = null, $paramsToTable = null, $paramsToField = null, $paramsToCondition = null, array $scopes = [])
-    {
-        if (!empty($scopes)) {
-            foreach ($scopes as $scope) {
-                self::$query->$scope();
-            }
-        }
-        if ($paramsToRelation) {
-            $this->buildWhereRelation($params, $paramsToRelation, $paramsToTable, $paramsToField, $paramsToCondition);
-        }
-        $this->buildWhereInTable($params, $paramsToRelation, $paramsToTable, $paramsToField, $paramsToCondition);
-    }
-
-    /**
-     * @param $params
-     * @param $paramsToRelation
-     * @param $paramsToTable
-     * @param $paramsToField
-     *
-     * @param $paramsToCondition
-     */
-    private function buildWhereInTable($params, $paramsToRelation, $paramsToTable, $paramsToField, $paramsToCondition)
-    {
         foreach ($params as $key => $value) {
-            if ($value === '') {
+
+            // Pass If Not Isset Conditions With Keys
+            if (!isset($conditions[$key])) {
                 continue;
             }
 
-            if (!isset($paramsToRelation[$key]) && !isset($paramsToField[$key]) && !isset($paramsToTable[$key]) && !isset($paramsToCondition[$key])) {
-                continue;
+            // Create Where SQL
+            $this->where($value, $conditions[$key], $this->getQuery());
+        }
+        return $this;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return $this
+     */
+    public function orderBy(array $params)
+    {
+        if (isset($params['order_by'])) {
+            $order = isset($params['order']) ? strtoupper($params['order']) : 'ASC';
+            $this->getQuery()->orderBy($params['order_by'], $order);
+        }
+        return $this;
+    }
+
+    /**
+     * @param array $withCount
+     *
+     * @return $this
+     */
+    public function withCount(array $withCount)
+    {
+        if (!empty($withCount)) {
+            $this->getQuery()->withCount($withCount);
+        }
+        return $this;
+    }
+
+    /**
+     * @param $value
+     * @param array $condition
+     * @param null $query
+     *
+     * @return Builder|mixed
+     */
+    private function where($value, array $condition, $query = null)
+    {
+        if (isset($condition['group_relation'])) {
+            $this->whereGroup($value, $condition['groups'], $query, $condition['group_connective']);
+        } else {
+            if ($condition['is_relation']) {
+                return $this->whereWithRelation($value, $condition, $query);
+            } else {
+                return $this->whereNoRelation($value, $condition, $query);
             }
-            if ($paramsToRelation[$key] === self::$table) {
-                if ($paramsToCondition[$key] === 'not_exist') {
-                    self::$query->doesntHave($value);
-                } elseif ($paramsToCondition[$key] === 'exist') {
-                    self::$query->whereHas($value);
+        }
+    }
+
+    /**
+     * @param $value
+     * @param array $condition
+     * @param $query
+     * @param $connective
+     */
+    private function whereGroup($value, array $condition, $query, $connective = 'AND')
+    {
+        $query->where(function ($query) use ($value, $condition, $connective) {
+            foreach ($condition as $key => $cond) {
+                if ($connective == 'OR') {
+                    $this->where($value, $cond, $query);
                 } else {
-                    if (is_array($value)) {
-                        if ($paramsToCondition[$key] == '!=') {
-                            self::$query->whereNotIn($paramsToField[$key], $value);
-                        } else {
-                            self::$query->whereIn($paramsToField[$key], $value);
-                        }
-                    } else {
-                        $valSearch = $value === 'null' ? null : $value;
-                        if ($paramsToCondition[$key] == 'like') {
-                            $valSearch = "%" . $valSearch . "%";
-                        }
-                        self::$query->where($paramsToField[$key], $paramsToCondition[$key], $valSearch);
-                    }
+                    $this->where($value, $cond, $query);
                 }
             }
+        });
+    }
+
+    /**
+     * @param $value
+     * @param array $condition
+     * @param null $query
+     *
+     * @return mixed
+     */
+    private function whereWithRelation($value, array $condition, $query = null)
+    {
+        return $query->whereHas($condition['relation'], function ($query) use ($value, $condition) {
+            if (is_array($value)) {
+                return $this->whereSpecialCondition($value, $condition, $query);
+            } else {
+                return $query->where($condition['table'] . '.' . $condition['field'], $value);
+            }
+        });
+    }
+
+    /**
+     * @param $value
+     * @param array $condition
+     * @param null $query
+     *
+     * @return Builder|mixed
+     */
+    private function whereNoRelation($value, array $condition, $query = null)
+    {
+        if (is_array($value)) {
+            return $this->whereSpecialCondition($value, $condition, $query);
+        } else {
+            return $query->where($condition['table'] . '.' . $condition['field'], $value);
         }
     }
 
     /**
-     * Build Query With Relations
+     * @param $value
+     * @param array $condition
+     * @param null $query
      *
-     * @param $params
-     * @param $paramsToRelation
-     * @param $paramsToTable
-     * @param $paramsToField
-     * @param $paramsToCondition
-     *
-     * @return bool
+     * @return Builder|mixed
      */
-    private function buildWhereRelation($params, $paramsToRelation, $paramsToTable, $paramsToField, $paramsToCondition)
+    private function whereSpecialCondition($value, array $condition, $query = null)
     {
-        $relations = self::parseRelations($paramsToRelation, self::$table);
-        if (!empty($relations)) {
-            foreach ($relations as $key => $relation) {
-                $listFields = [];
-                foreach ($relation as $field) {
-                    if (isset($params[$field])) {
-                        array_push($listFields, $field);
-                    }
-                }
-                if (empty($listFields)) {
-                    continue;
-                }
-                self::$query->whereHas($key, function ($q) use ($params, $listFields, $paramsToField, $paramsToTable, $paramsToCondition) {
-                    foreach ($params as $pKey => $value) {
-                        if (!in_array($pKey, $listFields)) {
-                            continue;
-                        }
-                        if ($value == '') {
-                            continue;
-                        }
-                        if (!isset($paramsToField[$pKey]) && !isset($paramsToTable[$pKey]) && !isset($paramsToCondition[$pKey])) {
-                            continue;
-                        }
-                        if (is_array($value)) {
-                            if ($paramsToCondition[$pKey] == '!=') {
-                                $q->whereNotIn($paramsToTable[$pKey] . '.' . $paramsToField[$pKey], $value);
-                            } else {
-                                $q->whereIn($paramsToTable[$pKey] . '.' . $paramsToField[$pKey], $value);
-                            }
-                        } else {
-                            $valSearch = $value === 'null' ? null : $value;
-                            if ($paramsToCondition[$pKey] == 'like') {
-                                $valSearch = "%" . $valSearch . "%";
-                            }
-                            $q->where($paramsToTable[$pKey] . '.' . $paramsToField[$pKey], $paramsToCondition[$pKey], $valSearch);
-                        }
-                    }
-                });
-            }
+        $key = key($value);
+        if (is_numeric($key)) {
+            return $query->whereIn($condition['table'] . '.' . $condition['field'], $value);
+        } else {
+            return $this->whereSpecial($value, $condition, $query);
         }
-        return false;
     }
 
     /**
-     * Convert relations
+     * @param $value
+     * @param $condition
+     * @param $query
      *
-     * @param $data
-     * @param $table
-     *
-     * @return array
+     * @return mixed
      */
-    private function parseRelations($data, $table)
+    private function whereSpecial($value, $condition, $query)
     {
-        if (empty($data)) {
-            return [];
-        }
-        $list = [];
-        foreach ($data as $key => $value) {
-            if ($table == $value) {
-                continue;
+        foreach ($value as $cond => $val) {
+            switch ($cond) {
+                case 'exist':
+                    return $query->whereHas($val);
+                    break;
+                case 'not_exist':
+                    return $query->whereDoesntHave($val);
+                    break;
+                case 'in':
+                    return $query->whereIn($condition['field'], $val);
+                    break;
+                case 'or':
+                    return $query->orWhere($condition['field'], $val);
+                    break;
+                case 'orLike':
+                    return $query->orWhere($condition['field'], 'like', $val);
+                    break;
+                case 'orIn':
+                    return $query->orWhereIn($condition['field'], $val);
+                    break;
+                default:
+                    return $query->where($condition['field'], $cond, $val);
+                    break;
             }
-            if (!isset($list[$value])) {
-                $list[$value] = [];
-            }
-            array_push($list[$value], $key);
         }
-        return $list;
     }
 }
