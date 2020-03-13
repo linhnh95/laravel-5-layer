@@ -6,6 +6,13 @@ namespace App\Abstraction\Dependency;
 interface AInterface
 {
     /**
+     * Create New Query
+     *
+     * @return mixed
+     */
+    public function newQuery();
+
+    /**
      * Thực hiện query
      *
      * @param $methods

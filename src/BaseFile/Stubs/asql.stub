@@ -17,7 +17,7 @@ abstract class ASQLQuery
      */
     public $model;
 
-    **
+    /**
      * @var
      */
     private $conditions;
@@ -46,6 +46,15 @@ abstract class ASQLQuery
     }
 
     /**
+     * @return QueryHelpers
+     */
+    public function newQuery()
+    {
+        $helper = new QueryHelpers($this->model);
+        return $helper->newQuery();
+    }
+
+    /**
      * @param $methods
      * @param $raw
      *
@@ -55,10 +64,10 @@ abstract class ASQLQuery
      */
     public function queryRaw($methods, $raw)
     {
-        try{
+        try {
             $result = DB::$methods($raw);
             return $result;
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
     }
@@ -74,7 +83,7 @@ abstract class ASQLQuery
      */
     public function getAll(array $params = [], array $fields = ['*'], bool $getAll = false)
     {
-        try{
+        try {
             $params = $this->clearNullValue($params);
             $query = $this->query($params, $fields);
             if (isset($params['distinct'])) {
@@ -89,7 +98,7 @@ abstract class ASQLQuery
                 $perPage = isset($params['per_page']) ? $params['per_page'] : 1;
                 return $query->paginate($perPage);
             }
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
     }
@@ -104,11 +113,11 @@ abstract class ASQLQuery
      */
     public function getCursorBigData(array $params = [], array $fields = ['*'])
     {
-        try{
+        try {
             $params = $this->clearNullValue($params);
             $query = $this->query($params, $fields);
             return $query->cursor();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
     }
@@ -124,12 +133,12 @@ abstract class ASQLQuery
      */
     public function getOne(int $id, array $params = [], array $fields = ['*'])
     {
-        try{
+        try {
             $params = $this->clearNullValue($params);
             $query = $this->query($params, $fields);
             $query->where('id', $id);
             return $query->first();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
     }
@@ -144,11 +153,11 @@ abstract class ASQLQuery
      */
     public function getOneBy(array $params = [], array $fields = ['*'])
     {
-        try{
+        try {
             $params = $this->clearNullValue($params);
             $query = $this->query($params, $fields);
             return $query->first();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
     }
@@ -163,11 +172,11 @@ abstract class ASQLQuery
      */
     public function getRandomBy(array $params, array $fields = ['*'])
     {
-        try{
+        try {
             $params = $this->clearNullValue($params);
             $query = $this->query($params, $fields)->inRandomOrder();
             return $query->first();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
     }
@@ -180,11 +189,11 @@ abstract class ASQLQuery
      */
     public function countBy(array $params = [])
     {
-        try{
+        try {
             $params = $this->clearNullValue($params);
             $query = $this->query($params, ['id']);
             return $query->count();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
     }
@@ -200,11 +209,11 @@ abstract class ASQLQuery
      */
     public function aggregatesBy(string $field, array $params = [], string $type = 'sum')
     {
-        try{
+        try {
             $params = $this->clearNullValue($params);
             $query = $this->query($params, [$field]);
             return $query->$type($field);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
         }
 
@@ -339,7 +348,7 @@ abstract class ASQLQuery
             if (empty($update)) {
                 return false;
             }
-            $helper = new QueryHelper($this->model);
+            $helper = new QueryHelpers($this->model);
             $result = $helper->createWhere($params, $this->conditions)->getQuery()->update($update);
             if ($getData) {
                 if (isset($where['id'])) {
@@ -375,8 +384,8 @@ abstract class ASQLQuery
             foreach ($raws as $key => $raw) {
                 $update[$key] = DB::raw($raw);
             }
-            $helper = new QueryHelper($this->model);
-            $result = $helper->createWhere($params, $this->conditions)->getQuery()->update($update);
+            $helper = new QueryHelpers($this->model);
+            $result = $helper->createWhere($where, $this->conditions)->getQuery()->update($update);
             if ($getData) {
                 if (isset($where['id'])) {
                     if ($this->withs) {
@@ -417,7 +426,7 @@ abstract class ASQLQuery
     public function deleteBy(array $params = [])
     {
         try {
-            $helper = new QueryHelper($this->model);
+            $helper = new QueryHelpers($this->model);
             $result = $helper->createWhere($params, $this->conditions)->getQuery()->delete();
             return $result;
         } catch (\Exception $exception) {
@@ -450,7 +459,7 @@ abstract class ASQLQuery
     public function forceDeleteBy(array $params = [])
     {
         try {
-            $helper = new QueryHelper($this->model);
+            $helper = new QueryHelpers($this->model);
             $ids = $helper->createWhere($params, $this->conditions)->getQuery()->withTrashed()->select(['id'])->get();
             if (!empty($ids)) {
                 $ids = $ids->pluck('id')->toArray();
@@ -490,7 +499,7 @@ abstract class ASQLQuery
     public function restoreBy(array $params = [])
     {
         try {
-            $helper = new QueryHelper($this->model);
+            $helper = new QueryHelpers($this->model);
             $query = $helper->createWhere($params, $this->conditions)->getQuery()->withTrashed()->restore();
             return $query;
         } catch (\Exception $exception) {
@@ -572,13 +581,12 @@ abstract class ASQLQuery
      * @param $params
      * @param $fields
      *
-     * @return QueryHelpers
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
      */
     private function query($params, $fields)
     {
-        $helper = new QueryHelper($this->model);
-        $query = $helper->newQuery()->setSelect($fields)->setWith($this->withs)->setScopes($this->scopes)->createWhere($params, $this->conditions)->orderBy($params)->withCount($this->withCount)->getQuery();
-        return $query;
+        $helper = new QueryHelpers($this->model);
+        return $helper->newQuery()->setSelect($fields)->setWith($this->withs)->setScopes($this->scopes)->createWhere($params, $this->conditions)->orderBy($params)->withCount($this->withCount)->getQuery();
     }
 
     /**
