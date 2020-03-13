@@ -37,6 +37,9 @@ abstract class ASQLQuery
      */
     private $withCount = [];
 
+    /**
+     * @var array
+     */
     private $pivotRelations = [];
 
     /**
@@ -126,19 +129,16 @@ abstract class ASQLQuery
 
     /**
      * @param int $id
-     * @param array $params
      * @param array $fields
      *
      * @return mixed
      *
      * @throws ServerException
      */
-    public function getOne(int $id, array $params = [], array $fields = ['*'])
+    public function getOne(int $id, array $fields = ['*'])
     {
         try {
-            $params = $this->clearNullValue($params);
-            $query = $this->query($params, $fields);
-            $query->where('id', $id);
+            $query = $this->query(['id' => $id], $fields);
             return $query->first();
         } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);

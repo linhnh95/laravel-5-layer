@@ -47,12 +47,11 @@ interface AInterface
      * Lấy 1 phần tử trong bảng
      *
      * @param int $id
-     * @param array $params
      * @param array $fields
      *
      * @return mixed
      */
-    public function getOne(int $id, array $params = [], array $fields = ['*']);
+    public function getOne(int $id, array $fields = ['*']);
 
     /**
      * Lấy 1 phần tử theo params
