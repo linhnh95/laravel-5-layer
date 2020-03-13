@@ -37,6 +37,8 @@ abstract class ASQLQuery
      */
     private $withCount = [];
 
+    private $pivotRelations = [];
+
     /**
      * @param Model $model
      */
@@ -725,5 +727,13 @@ abstract class ASQLQuery
     protected function withCount(array $withCount = [])
     {
         $this->withCount = $withCount;
+    }
+
+    /**
+     * @param array $pivots
+     */
+    protected function pivotRelations(array $pivots = [])
+    {
+        $this->pivotRelations = $pivots;
     }
 }
