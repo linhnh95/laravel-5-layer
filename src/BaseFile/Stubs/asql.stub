@@ -351,7 +351,7 @@ abstract class ASQLQuery
                 return false;
             }
             $helper = new QueryHelpers($this->model);
-            $result = $helper->createWhere($params, $this->conditions)->getQuery()->update($update);
+            $result = $helper->newQuery()->createWhere($params, $this->conditions)->getQuery()->update($update);
             if ($getData) {
                 if (isset($where['id'])) {
                     if ($this->withs) {
@@ -387,7 +387,7 @@ abstract class ASQLQuery
                 $update[$key] = DB::raw($raw);
             }
             $helper = new QueryHelpers($this->model);
-            $result = $helper->createWhere($where, $this->conditions)->getQuery()->update($update);
+            $result = $helper->newQuery()->createWhere($where, $this->conditions)->getQuery()->update($update);
             if ($getData) {
                 if (isset($where['id'])) {
                     if ($this->withs) {
@@ -429,7 +429,7 @@ abstract class ASQLQuery
     {
         try {
             $helper = new QueryHelpers($this->model);
-            $result = $helper->createWhere($params, $this->conditions)->getQuery()->delete();
+            $result = $helper->newQuery()->createWhere($params, $this->conditions)->getQuery()->delete();
             return $result;
         } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
@@ -462,14 +462,14 @@ abstract class ASQLQuery
     {
         try {
             $helper = new QueryHelpers($this->model);
-            $ids = $helper->createWhere($params, $this->conditions)->getQuery()->withTrashed()->select(['id'])->get();
+            $ids = $helper->newQuery()->createWhere($params, $this->conditions)->getQuery()->withTrashed()->select(['id'])->get();
             if (!empty($ids)) {
                 $ids = $ids->pluck('id')->toArray();
                 foreach ($ids as $id) {
                     $this->buildPivotRelations($id, [], true);
                 }
             }
-            $result = $helper->createWhere($params, $this->conditions)->getQuery()->withTrashed()->delete();
+            $result = $helper->newQuery()->createWhere($params, $this->conditions)->getQuery()->withTrashed()->delete();
             return $result;
         } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
@@ -502,7 +502,7 @@ abstract class ASQLQuery
     {
         try {
             $helper = new QueryHelpers($this->model);
-            $query = $helper->createWhere($params, $this->conditions)->getQuery()->withTrashed()->restore();
+            $query = $helper->newQuery()->createWhere($params, $this->conditions)->getQuery()->withTrashed()->restore();
             return $query;
         } catch (\Exception $exception) {
             throw new ServerException($exception->getMessage(), $exception);
