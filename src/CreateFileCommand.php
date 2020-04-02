@@ -64,6 +64,7 @@ class CreateFileCommand extends Command
             $this->callSilent('linh-5layer:request', ['name' => $request]);
         }
         $this->createProviders($this->argument('name'));
+        $this->createConfig($this->argument('name'));
 
         $this->info('Create file success');
     }
@@ -82,5 +83,29 @@ class CreateFileCommand extends Command
         $afterString = str_replace($changeContent, $stringReplace, $contentFile);
         file_put_contents($file, '');
         file_put_contents($file, $afterString);
+    }
+
+    /**
+     * @param $name
+     */
+    private function createConfig($name)
+    {
+        $fileConfigFile = base_path('config/tables.php');
+        $table = $table = trim(strtolower(preg_replace('/([A-Z])/', '_${1}', $name)), '_');
+        if (!file_exists($fileConfigFile)) {
+            $file = fopen($fileConfigFile, "w");
+            $textFile = "<?php \nreturn [\n     //**CONFIG**//\n  " . $table . " => " . $table . ",\n    //**END_CONFIG**//\n];";
+            fwrite($file, $textFile);
+            fclose($file);
+        } else {
+            $fileConfig = file_get_contents($fileConfigFile);
+            $stringAddNew = $table . " => " . $table . ",\n";
+            $changeContent = substr($fileConfig, strripos($fileConfig, '//**CONFIG**//'));
+            $changeContent = substr($changeContent, 0, strripos($changeContent, '//**END_CONFIG**//'));
+            $stringReplace = $changeContent . $stringAddNew;
+            $afterString = str_replace($changeContent, $stringReplace, $fileConfig);
+            file_put_contents($fileConfig, '');
+            file_put_contents($fileConfig, $afterString);
+        }
     }
 }

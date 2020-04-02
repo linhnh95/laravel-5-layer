@@ -39,6 +39,20 @@ class CreateIDependencyCommand extends GeneratorCommand
     }
 
     /**
+     * Replace the class name for the given stub.
+     *
+     * @param  string $stub
+     * @param  string $name
+     * @return string
+     */
+    protected function replaceClass($stub, $name)
+    {
+        $stub = parent::replaceClass($stub, $name);
+        $stub = $this->replaceProperties($stub);
+        return $stub;
+    }
+
+    /**
      * Get the default namespace for the class.
      *
      * @param  string $rootNamespace
@@ -73,5 +87,18 @@ class CreateIDependencyCommand extends GeneratorCommand
             $this->files->put($path, $this->buildClass($nameBase));
         }
         $this->info($this->type . ' created successfully.');
+    }
+
+    /**
+     * @param $stub
+     *
+     * @return mixed
+     */
+    protected function replaceTable($stub)
+    {
+        $table = $this->getNameInput();
+        $table = trim(strtolower(preg_replace('/([A-Z])/', '_${1}', $table)), '_');
+        $stub = str_replace('{{table_name}}', $table, $stub);
+        return $stub;
     }
 }

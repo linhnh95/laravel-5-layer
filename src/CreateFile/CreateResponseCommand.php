@@ -70,6 +70,30 @@ class CreateResponseCommand extends GeneratorCommand
     }
 
     /**
+     * @return bool
+     */
+    public function handle()
+    {
+        $nameBase = $this->qualifyClass($this->getNameInput());
+        $nameInput = $this->getNameInput() . 'Response';
+        $name = $this->qualifyClass($nameInput);
+        $path = $this->getPath($name);
+        if ((!$this->hasOption('force') ||
+                !$this->option('force')) &&
+            $this->alreadyExists($nameInput)) {
+            $this->error($this->type . ' already exists!');
+            return false;
+        }
+        $this->makeDirectory($path);
+        if (method_exists($this, 'sortImports')) {
+            $this->files->put($path, $this->sortImports($this->buildClass($nameBase)));
+        } else {
+            $this->files->put($path, $this->buildClass($nameBase));
+        }
+        $this->info($this->type . ' created successfully.');
+    }
+
+    /**
      * @param $stub
      *
      * @return mixed

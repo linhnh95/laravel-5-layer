@@ -5,6 +5,11 @@ namespace DummyNamespace;
 use App\Abstraction\Business\IDummyClassBusiness;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DummyClass\CreateDummyClassRequest;
+use App\Http\Requests\DummyClass\ListDummyClassRequest;
+use App\Http\Requests\DummyClass\FindDummyClassRequest;
+use App\Http\Requests\DummyClass\UpdateDummyClassRequest;
+use App\Http\Requests\DummyClass\DeleteDummyClassRequest;
 
 class DummyClassController extends Controller
 {
@@ -28,7 +33,7 @@ class DummyClassController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(ListDummyClassRequest $request)
     {
         //
     }
@@ -39,7 +44,7 @@ class DummyClassController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateDummyClassRequest $request)
     {
         //
     }
@@ -50,7 +55,7 @@ class DummyClassController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(FindDummyClassRequest $request)
     {
         //
     }
@@ -62,7 +67,7 @@ class DummyClassController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateDummyClassRequest $request, $id)
     {
         //
     }
@@ -73,7 +78,7 @@ class DummyClassController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(DeleteDummyClassRequest $request, $id)
     {
         //
     }

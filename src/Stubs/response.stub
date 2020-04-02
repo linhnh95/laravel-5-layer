@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-class DummyClass
+class DummyClassResponse
 {
     {{properties}}
 	public function __construct(array $params)
