@@ -50,6 +50,21 @@ class CreateDependencyCommand extends GeneratorCommand
     }
 
     /**
+     * Replace the class name for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     * @return string
+     */
+    protected function replaceClass($stub, $name)
+    {
+        $stub = parent::replaceClass($stub, $name);
+        $stub = $this->replaceTables($stub);
+
+        return $stub;
+    }
+
+    /**
      * @return bool|null
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
@@ -73,6 +88,17 @@ class CreateDependencyCommand extends GeneratorCommand
             $this->files->put($path, $this->buildClass($nameBase));
         }
         $this->info($this->type . ' created successfully.');
+    }
+
+    /**
+     * @param $stub
+     *
+     * @return mixed
+     */
+    protected function replaceTables($stub)
+    {
+        $stub = str_replace('{{table_name}}', strtolower($this->getNameInput()), $stub);
+        return $stub;
     }
 }
 
