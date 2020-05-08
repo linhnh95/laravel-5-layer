@@ -104,8 +104,8 @@ class CreateFileCommand extends Command
             $changeContent = substr($changeContent, 0, strripos($changeContent, '//**END_CONFIG**//'));
             $stringReplace = $changeContent . $stringAddNew;
             $afterString = str_replace($changeContent, $stringReplace, $fileConfig);
-            file_put_contents($fileConfig, '');
-            file_put_contents($fileConfig, $afterString);
+            file_put_contents($fileConfigFile, '');
+            file_put_contents($fileConfigFile, $afterString);
         }
     }
 }
