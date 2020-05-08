@@ -48,7 +48,7 @@ class CreateIDependencyCommand extends GeneratorCommand
     protected function replaceClass($stub, $name)
     {
         $stub = parent::replaceClass($stub, $name);
-        $stub = $this->replaceProperties($stub);
+        $stub = $this->replaceTable($stub);
         return $stub;
     }
 
