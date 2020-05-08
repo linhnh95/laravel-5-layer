@@ -99,9 +99,9 @@ class CreateFileCommand extends Command
             fclose($file);
         } else {
             $fileConfig = file_get_contents($fileConfigFile);
-            $stringAddNew = "'" . $table . "' => '" . $table . "',\n";
+            $stringAddNew = "    '" . $table . "' => '" . $table . "',\n";
             $changeContent = substr($fileConfig, strripos($fileConfig, '//**CONFIG**//'));
-            $changeContent = substr($changeContent, 0, strripos($changeContent, '//**END_CONFIG**//'));
+            $changeContent = substr($changeContent, 0, strripos($changeContent, '    //**END_CONFIG**//'));
             $stringReplace = $changeContent . $stringAddNew;
             $afterString = str_replace($changeContent, $stringReplace, $fileConfig);
             file_put_contents($fileConfigFile, '');
