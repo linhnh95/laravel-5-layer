@@ -94,12 +94,12 @@ class CreateFileCommand extends Command
         $table = $table = trim(strtolower(preg_replace('/([A-Z])/', '_${1}', $name)), '_');
         if (!file_exists($fileConfigFile)) {
             $file = fopen($fileConfigFile, "w");
-            $textFile = "<?php \nreturn [\n     //**CONFIG**//\n  " . $table . " => " . $table . ",\n    //**END_CONFIG**//\n];";
+            $textFile = "<?php \nreturn [\n     //**CONFIG**//\n  '" . $table . "' => '" . $table . "',\n    //**END_CONFIG**//\n];";
             fwrite($file, $textFile);
             fclose($file);
         } else {
             $fileConfig = file_get_contents($fileConfigFile);
-            $stringAddNew = $table . " => " . $table . ",\n";
+            $stringAddNew = "'" . $table . "' => '" . $table . "',\n";
             $changeContent = substr($fileConfig, strripos($fileConfig, '//**CONFIG**//'));
             $changeContent = substr($changeContent, 0, strripos($changeContent, '//**END_CONFIG**//'));
             $stringReplace = $changeContent . $stringAddNew;
