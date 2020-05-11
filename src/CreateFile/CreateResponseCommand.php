@@ -109,9 +109,9 @@ class CreateResponseCommand extends GeneratorCommand
         foreach ($properties as $property) {
             $property = trim($property, " ");
             if (++$i === $numProp) {
-                $propertiesReplace .= sprintf("\$this->%s = isset(\$params['%s']) ?? null;" . str_repeat(' ', 8), $property, $property);
+                $propertiesReplace .= sprintf("\$this->%s = \$params['%s'] ?? null;" . str_repeat(' ', 8), $property, $property);
             } else {
-                $propertiesReplace .= sprintf("\$this->%s = isset(\$params['%s']) ?? null;\n" . str_repeat(' ', 8), $property, $property);
+                $propertiesReplace .= sprintf("\$this->%s = \$params['%s'] ?? null;\n" . str_repeat(' ', 8), $property, $property);
             }
         }
 
