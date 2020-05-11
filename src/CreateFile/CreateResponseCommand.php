@@ -133,7 +133,7 @@ class CreateResponseCommand extends GeneratorCommand
         $propertiesReplace = '';
         foreach ($properties as $property) {
             $property = trim($property, " ");
-            $propertiesReplace .= sprintf("private \$%s;\n" . str_repeat(' ', 4), $property);
+            $propertiesReplace .= sprintf("public \$%s;\n" . str_repeat(' ', 4), $property);
         }
         $stub = str_replace('{{properties}}', $propertiesReplace, $stub);
 
