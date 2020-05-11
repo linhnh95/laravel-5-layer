@@ -54,8 +54,8 @@ class CreateResponseCommand extends GeneratorCommand
     /**
      * Replace the class name for the given stub.
      *
-     * @param  string  $stub
-     * @param  string  $name
+     * @param  string $stub
+     * @param  string $name
      * @return string
      */
     protected function replaceClass($stub, $name)
@@ -104,14 +104,14 @@ class CreateResponseCommand extends GeneratorCommand
         $properties = explode(',', $properties);
 
         $propertiesReplace = '';
-        $i                 = 0;
-        $numProp           = count($properties);
+        $i = 0;
+        $numProp = count($properties);
         foreach ($properties as $property) {
             $property = trim($property, " ");
             if (++$i === $numProp) {
-                $propertiesReplace .= sprintf("\$this->%s = isset(\$params['%s']) ?: null;" . str_repeat(' ', 8), $property, $property);
+                $propertiesReplace .= sprintf("\$this->%s = isset(\$params['%s']) ?? null;" . str_repeat(' ', 8), $property, $property);
             } else {
-                $propertiesReplace .= sprintf("\$this->%s = isset(\$params['%s']) ?: null;\n" . str_repeat(' ', 8), $property, $property);
+                $propertiesReplace .= sprintf("\$this->%s = isset(\$params['%s']) ?? null;\n" . str_repeat(' ', 8), $property, $property);
             }
         }
 
@@ -151,11 +151,11 @@ class CreateResponseCommand extends GeneratorCommand
         $properties = explode(',', $properties);
 
         $methodsReplace = '';
-        $i              = 0;
-        $numProp        = count($properties);
+        $i = 0;
+        $numProp = count($properties);
         foreach ($properties as $property) {
             $property = trim($property, " ");
-            $method   = ucfirst(Str::camel($property));
+            $method = ucfirst(Str::camel($property));
             $methodsReplace .= sprintf(
                 "public function set%s(\$%s)
     {
