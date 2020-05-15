@@ -64,7 +64,7 @@ class CreateResponseCommand extends GeneratorCommand
 
         $stub = $this->replaceProperties($stub);
         $stub = $this->replaceInit($stub);
-        $stub = $this->replaceMethods($stub);
+        //$stub = $this->replaceMethods($stub);
 
         return $stub;
     }
@@ -204,7 +204,7 @@ class CreateResponseCommand extends GeneratorCommand
     {
         return [
             [
-                'properties', 'p', InputOption::VALUE_OPTIONAL, 'Attribute list, separated by commas.', 'id,created_at,update_at'
+                'properties', 'p', InputOption::VALUE_OPTIONAL, 'Attribute list, separated by commas.', 'id,created_at,updated_at'
             ],
         ];
     }

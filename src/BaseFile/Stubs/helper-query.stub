@@ -114,12 +114,12 @@ class QueryHelpers
     {
         // Can't Create Where SQL If Not Isset $params
         if (empty($params)) {
-            return $this->getQuery();
+            return $this;
         }
 
         // Can't Create Where SQL If Not Isset $conditions
         if (empty($conditions)) {
-            return $this->getQuery();
+            return $this;
         }
 
         foreach ($params as $key => $value) {
@@ -172,13 +172,9 @@ class QueryHelpers
     private function where($value, array $condition, $query = null)
     {
         if (isset($condition['group_relation'])) {
-            $this->whereGroup($value, $condition['groups'], $query, $condition['group_connective']);
+            $this->whereGroup($value, $condition['groups'], $query);
         } else {
-            if ($condition['is_relation']) {
-                return $this->whereWithRelation($value, $condition, $query);
-            } else {
-                return $this->whereNoRelation($value, $condition, $query);
-            }
+            return $this->buildWhere($value, $condition, $query);
         }
     }
 
@@ -186,37 +182,34 @@ class QueryHelpers
      * @param $value
      * @param array $condition
      * @param $query
-     * @param $connective
      */
-    private function whereGroup($value, array $condition, $query, $connective = 'AND')
+    private function whereGroup($value, array $condition, $query)
     {
-        $query->where(function ($query) use ($value, $condition, $connective) {
-            foreach ($condition as $key => $cond) {
-                if ($connective == 'OR') {
-                    $this->where($value, $cond, $query);
-                } else {
-                    $this->where($value, $cond, $query);
-                }
-            }
-        });
+        $condition = $this->pluckConditionWithRelation($condition);
+        foreach ($condition as $relation => $cond) {
+            $query->whereHas($relation, function ($query) use ($value, $cond) {
+                $query->where(function ($q) use ($value, $cond) {
+                    foreach ($cond as $c) {
+                        $this->where($value, $c, $q);
+                    }
+                });
+            });
+        }
     }
 
     /**
-     * @param $value
      * @param array $condition
-     * @param null $query
-     *
-     * @return mixed
+     * @return array
      */
-    private function whereWithRelation($value, array $condition, $query = null)
+    private function pluckConditionWithRelation(array $condition)
     {
-        return $query->whereHas($condition['relation'], function ($query) use ($value, $condition) {
-            if (is_array($value)) {
-                return $this->whereSpecialCondition($value, $condition, $query);
-            } else {
-                return $query->where($condition['table'] . '.' . $condition['field'], $value);
+        $result = [];
+        if (!empty($condition)) {
+            foreach ($condition as $key => $value) {
+                $result[$value['relation']][$key] = $value;
             }
-        });
+        }
+        return $result;
     }
 
     /**
@@ -226,7 +219,7 @@ class QueryHelpers
      *
      * @return Builder|mixed
      */
-    private function whereNoRelation($value, array $condition, $query = null)
+    private function buildWhere($value, array $condition, $query = null)
     {
         if (is_array($value)) {
             return $this->whereSpecialCondition($value, $condition, $query);
