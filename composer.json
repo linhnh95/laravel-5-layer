@@ -1,19 +1,16 @@
 {
     "name": "linhnh95/laravel5layer",
-    "type": "package",
-    "version": "1.1.13",
-    "description": "Package Support For Structure Laravel",
+    "type": "library",
+    "version": "1.1.14",
+    "description": "Library Support For Structure Laravel",
     "keywords": ["laravel", "structure"],
     "license": "MIT",
     "authors": [
         {
             "name": "Nguyen Hong Linh",
-            "email": "jd.linhnh95@gmail.com",
-            "homepage": "https://linhnh.com",
-            "role": "Developer"
+            "email": "jd.linhnh95@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "php": ">=7.2",
         "laravel/framework": ">=5.5.0",
@@ -31,6 +28,9 @@
         }
     },
     "autoload-dev": {},
+    "config": {
+        "sort-packages": true
+    },
     "extra": {
         "laravel": {
             "providers": [
