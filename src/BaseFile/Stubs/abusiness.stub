@@ -56,7 +56,7 @@ abstract class ABusiness
      *
      * @return mixed
      */
-    public function getOneBy(array $params = [], $fields = [])
+    public function getOneBy(array $params = [], $fields = ['*'])
     {
         return $this->interface->getOneBy($params, $fields);
     }

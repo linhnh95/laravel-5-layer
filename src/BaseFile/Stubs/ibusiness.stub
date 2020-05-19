@@ -29,10 +29,11 @@ interface AInterfaceBusiness
      * Lấy 1 phần tử theo điều kiện
      *
      * @param array $params
+     * @param array $fields
      *
      * @return mixed
      */
-    public function getOneBy(array $params = []);
+    public function getOneBy(array $params = [], array $fields = ['*']);
 
     /**
      * Tạo 1 phần tử
