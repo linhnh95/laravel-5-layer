@@ -6,7 +6,7 @@ namespace App\Dependency;
 use App\Common\Helpers\QueryHelpers;
 use App\Exceptions\ServerException;
 use App\Exceptions\ValidationException;
-use App\Helpers\PriceHelpers;
+use App\Common\Helpers\PriceHelpers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -351,7 +351,7 @@ abstract class ASQLQuery
                 return false;
             }
             $helper = new QueryHelpers($this->model);
-            $result = $helper->newQuery()->createWhere($params, $this->conditions)->getQuery()->update($update);
+            $result = $helper->newQuery()->createWhere($where, $this->conditions)->getQuery()->update($update);
             if ($getData) {
                 if (isset($where['id'])) {
                     if ($this->withs) {
@@ -536,16 +536,18 @@ abstract class ASQLQuery
      * @param string $table
      * @param string $field
      * @param string $relation
+     * @param string $keyField
      *
      * @return array
      */
-    public function parseQueryCondition(string $table = '', string $field = '', string $relation = '')
+    public function parseQueryCondition(string $table = '', string $field = '', string $relation = '', string $keyField = '')
     {
         return [
             'is_relation' => $relation !== '' ? true : false,
             'relation' => $relation,
             'table' => $table,
-            'field' => $field
+            'field' => $field,
+            'key_field' => $keyField
         ];
     }
 

@@ -185,16 +185,32 @@ class QueryHelpers
      */
     private function whereGroup($value, array $condition, $query)
     {
-        $condition = $this->pluckConditionWithRelation($condition);
-        foreach ($condition as $relation => $cond) {
-            $query->whereHas($relation, function ($query) use ($value, $cond) {
-                $query->where(function ($q) use ($value, $cond) {
-                    foreach ($cond as $c) {
-                        $this->where($value, $c, $q);
-                    }
+        $conditionGroup = $this->pluckConditionWithRelation($condition);
+        if(!empty($conditionGroup)){
+            foreach ($conditionGroup as $relation => $cond) {
+                $query->whereHas($relation, function ($query) use ($value, $cond) {
+                    $this->buildWhereByGroup($query, $value, $cond);
                 });
-            });
+            }
+        }else{
+            $this->buildWhereByGroup($query, $value, $condition);
         }
+    }
+
+    /**
+     * @param $query
+     * @param $value
+     * @param $cond
+     * @return mixed
+     */
+    private function buildWhereByGroup($query, $value, $cond)
+    {
+        $query->where(function ($q) use ($value, $cond) {
+            foreach ($cond as $c) {
+                $this->where($value, $c, $q);
+            }
+        });
+        return $query;
     }
 
     /**
@@ -206,7 +222,9 @@ class QueryHelpers
         $result = [];
         if (!empty($condition)) {
             foreach ($condition as $key => $value) {
-                $result[$value['relation']][$key] = $value;
+                if($value['relation'] !== ''){
+                    $result[$value['relation']][$key] = $value;
+                }
             }
         }
         return $result;
@@ -221,10 +239,19 @@ class QueryHelpers
      */
     private function buildWhere($value, array $condition, $query = null)
     {
+        if (isset($condition['key_field']) && $condition['key_field'] !== '') {
+            $value = $value[$condition['key_field']] ?? $value;
+        }
         if (is_array($value)) {
             return $this->whereSpecialCondition($value, $condition, $query);
         } else {
-            return $query->where($condition['table'] . '.' . $condition['field'], $value);
+            if ($condition['relation'] !== '') {
+                return $query->whereHas($condition['relation'], function ($query) use ($condition, $value) {
+                    return $query->where($condition['table'] . '.' . $condition['field'], $value);
+                });
+            } else {
+                return $query->where($condition['table'] . '.' . $condition['field'], $value);
+            }
         }
     }
 
@@ -236,6 +263,24 @@ class QueryHelpers
      * @return Builder|mixed
      */
     private function whereSpecialCondition($value, array $condition, $query = null)
+    {
+        if ($condition['relation'] !== '') {
+            return $query->whereHas('', function ($query) use ($value, $condition) {
+                return $this->buildWhereSpecial($value, $condition, $query);
+            });
+        } else {
+            return $this->buildWhereSpecial($value, $condition, $query);
+        }
+    }
+
+    /**
+     * @param $value
+     * @param array $condition
+     * @param null $query
+     *
+     * @return mixed
+     */
+    private function buildWhereSpecial($value, array $condition, $query = null)
     {
         $key = key($value);
         if (is_numeric($key)) {
